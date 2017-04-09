@@ -8,6 +8,15 @@ import android.graphics.drawable.Drawable;
 public class ListViewItem {
     private String titleStr ;
     private String descStr ;
+    private String itemCode;
+
+    public String getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
+    }
 
     public void setTitle(String title) {
         titleStr = title ;

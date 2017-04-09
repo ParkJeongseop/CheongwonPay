@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tf_goods"
-        android:text="상품명" />
+        android:hint="상품명" />
 
     <EditText
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
         android:inputType="number"
         android:ems="10"
         android:id="@+id/tf_price"
-        android:text="가격" />
+        android:hint="가격" />
 
     <Button
         android:layout_width="wrap_content"

@@ -50,6 +50,9 @@ public class ListViewAdapter extends BaseAdapter {
         titleTextView.setText(listViewItem.getTitle());
         descTextView.setText(listViewItem.getDesc());
 
+        //태그를 뷰의 포지션으로 설정
+        convertView.setTag(position);
+
         return convertView;
     }
 
@@ -66,12 +69,17 @@ public class ListViewAdapter extends BaseAdapter {
     }
 
     // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
-    public void addItem(String title, String desc) {
+    public void addItem(String title, String desc, String itemCode) {
         ListViewItem item = new ListViewItem();
 
         item.setTitle(title);
         item.setDesc(desc);
+        item.setItemCode(itemCode);
 
         listViewItemList.add(item);
+    }
+
+    public void clear(){
+        listViewItemList.clear();
     }
 }

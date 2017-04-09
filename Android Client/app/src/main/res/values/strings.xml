@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">청원페이</string>
+    <string name="app_name">전자청원</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">동아리 ID</string>

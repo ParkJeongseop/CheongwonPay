@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Network;
@@ -50,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final int REQUEST_READ_CONTACTS = 0;
     public static final int LOGIN_OK = 1, LOGIN_FAIL = 2;
+    private String email, password;
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -58,7 +60,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
     public static Handler mHandler;
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -71,8 +72,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        TelephonyManager telephony = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        MainActivity.Phone_Num = telephony.getLine1Number();
+        //TelephonyManager telephony = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        //MainActivity.Phone_Num = telephony.getLine1Number();
 
         NetworkThread.prepare();
         mHandler = new Handler(){
@@ -87,17 +88,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                   extra.putString("LOGIN_RESULT", mEmailView.getText().toString());
                   intent.putExtras(extra);
                   setResult(RESULT_OK, intent);
+                  SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+                  SharedPreferences.Editor edit = pref.edit();
+                  edit.putString("ID", email);
+                  edit.putString("PW", password);
+                  edit.commit();
                   finish();
+                  startActivity(intent);
               } else {
-                  extra.putString("LOGIN_RESULT", "FAILEdD!");
-                  intent.putExtras(extra);
-                  setResult(RESULT_OK, intent);
-                  finish();
 
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
+                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.requestFocus();
               }
-              startActivity(intent);
+
           }
         };
 
@@ -127,6 +130,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                while (NetworkThread.instance.networkHandler == null) {
+                    Log.d("Test", "Trying..");
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                autoLogin();
+            }
+        }).start();
+
     }
 
     private void populateAutoComplete() {
@@ -178,18 +202,46 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
+    public void autoLogin(){
+
+        // Store values at the time of the login attempt
+        SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+        email = pref.getString("ID","");
+        password = pref.getString("PW","");
+
+        Log.d("Test","before");
+        if(email.length()==0 || password.length()==0) return;
+        Log.d("Test","after");
+
+        boolean cancel = false;
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+//            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+//            showProgress(true);
+//            mAuthTask = new UserLoginTask(email, password);
+//            mAuthTask.execute((Void) null);
+
+            Message msg = new Message();
+            msg.what = NetworkThread.OP_LOGIN;
+            msg.obj = email + ":" + password;
+            NetworkThread.instance.networkHandler.sendMessage(msg);
         }
+    }
+
+    private void attemptLogin() {
 
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        email = mEmailView.getText().toString();
+        password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -226,7 +278,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             Message msg = new Message();
             msg.what = NetworkThread.OP_LOGIN;
-            msg.obj = mEmailView.getText().toString() + ":" + mPasswordView.getText().toString();
+            msg.obj = email + ":" + password;
             NetworkThread.instance.networkHandler.sendMessage(msg);
 
         }
@@ -336,112 +388,4 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-//            Log.d("LoginActivity", "doInBackground");
-//            try {
-//                // Simulate network access.
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                return false;
-//            }
-//
-//            Socket socket = null;
-//
-//            DataOutputStream dos;
-//            DataInputStream dis;
-//
-//            try {
-//                socket = new Socket(MainActivity.Adress, MainActivity.port);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                Log.d("LoginActivity", "Socket Error : " + e.getMessage());
-//            }
-//
-//            if(socket!=null){
-//
-//                try {
-//                    dos = new DataOutputStream(socket.getOutputStream());
-//                    dis = new DataInputStream(socket.getInputStream());
-//
-//                    dos.writeUTF("Login");
-//                    dos.writeUTF(mEmail + ":" + mPassword);
-//
-//                    String result;
-//
-//                    result = dis.readUTF();
-//
-//                    if(result.equals("Login Success!")){
-//                        MainActivity.CLUB_ID = mEmail;
-//                        return true;
-//                    } else {
-//                        return false;
-//                    }
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//
-//
-//
-////            for (String credential : DUMMY_CREDENTIALS) {
-////                String[] pieces = credential.split(":");
-////                if (pieces[0].equals(mEmail)) {
-////                    // Account exists, return true if the password matches.
-////                    return pieces[1].equals(mPassword);
-////                }
-////            }
-//
-//            // TODO: register the new account here.
-//            return false;
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            Log.d("LoginActivity", "onPostExecute");
-            mAuthTask = null;
-            showProgress(false);
-
-            Bundle extra = new Bundle();
-            Intent intent = new Intent();
-
-            if (success) {
-                extra.putString("LOGIN_RESULT", mEmail);
-                intent.putExtras(extra);
-                setResult(RESULT_OK, intent);
-                finish();
-            } else {
-
-                extra.putString("LOGIN_RESULT", "FAILEdD!");
-                intent.putExtras(extra);
-                setResult(RESULT_OK, intent);
-                finish();
-
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-
-    }
 }
