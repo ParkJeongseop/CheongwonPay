@@ -28,8 +28,8 @@ public class NetworkThread extends HandlerThread {
 
     public static final int OP_LOGIN = 1, OP_PURCHASE = 2, OP_ADD_ITEM = 3, OP_RF_BAL = 4, OP_GetGoodsList = 5, OP_GetRefundList = 6, OP_Refund = 7, OP_ATD = 10;
 
-    public static final String SERVER_IP = "192.168.43.180";
-    public static final int SERVER_PORT = 8888;
+    public static final String SERVER_IP = "58.141.189.32";
+    public static final int SERVER_PORT = 8321;
 
     public static void prepare(){
         if(instance!=null) return;

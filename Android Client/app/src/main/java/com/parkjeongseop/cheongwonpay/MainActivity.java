@@ -150,18 +150,15 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-
+    //Start버튼 눌렀을때
     public void onClicked(View view) {
         Intent intent = new Intent("com.google.zxing.client.android.SCAN");
         intent.putExtra("SCAN_MODE", "ALL");
         startActivityForResult(intent, 0);
     }
 
-    int a;
-
+    //ADD버튼 눌렀을때
     public void onClickedAdd(View view) {
-//        Intent intent = new Intent(MainActivity.this, GoodsAddActivity.class);
-//        startActivity(intent);
         final Dialog popup = new Dialog(this);
         popup.setContentView(R.layout.activity_goodsadd);
         popup.show();
@@ -250,31 +247,4 @@ public class MainActivity extends AppCompatActivity {
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
-    /*
-    int price = 0;
-    public void onClicked500(){
-        int price = price + 500;
-    }
-
-    public void onClicked1000(){
-        int price = price + 1000;
-    }
-
-    public void onClicked1500(){
-        int price = price + 1500;
-    }
-
-    public void onClicked2000(){
-        int price = price + 2000;
-    }*/
 }
-
-/*class Item{
-    String name;
-    int price;
-
-    Item(int p, String n){
-       name = n;
-        price = p;
-    }
-}*/

@@ -75,6 +75,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         //TelephonyManager telephony = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         //MainActivity.Phone_Num = telephony.getLine1Number();
 
+        //핸들러
         NetworkThread.prepare();
         mHandler = new Handler(){
           @Override
@@ -202,17 +203,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    public void autoLogin(){
 
+    //자동로그인
+    public void autoLogin(){
         // Store values at the time of the login attempt
         SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
         email = pref.getString("ID","");
         password = pref.getString("PW","");
-
         Log.d("Test","before");
         if(email.length()==0 || password.length()==0) return;
         Log.d("Test","after");
-
         boolean cancel = false;
 
         if (cancel) {
@@ -233,6 +233,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    //로그인 시도
     private void attemptLogin() {
 
         // Reset errors.
@@ -246,23 +247,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
+        // 유효한 패스워드인지 확인
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        // Check for a valid email address.
+        // 유효한 ID인지 확인
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } /*else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }*/
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -272,23 +269,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-//            mAuthTask = new UserLoginTask(email, password);
-//            mAuthTask.execute((Void) null);
 
-
+            //NetworkThread에 Handler를 이용하여 ID와 패스워드와함께 로그인요청전달
             Message msg = new Message();
             msg.what = NetworkThread.OP_LOGIN;
             msg.obj = email + ":" + password;
             NetworkThread.instance.networkHandler.sendMessage(msg);
-
         }
     }
 
-    /*private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }*/
-
+    //유효한 패스워드인지 확인
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
@@ -329,6 +319,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
