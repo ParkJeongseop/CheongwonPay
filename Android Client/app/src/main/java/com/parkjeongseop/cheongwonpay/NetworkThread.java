@@ -26,7 +26,7 @@ public class NetworkThread extends HandlerThread {
     public DataOutputStream dos = null;
     public DataInputStream dis = null;
 
-    public static final int OP_LOGIN = 1, OP_PURCHASE = 2, OP_ADD_ITEM = 3, OP_RF_BAL = 4, OP_GetGoodsList = 5, OP_GetRefundList = 6, OP_Refund = 7, OP_ATD = 10;
+    public static final int OP_LOGIN = 1, OP_PURCHASE = 2, OP_ADD_ITEM = 3, OP_RF_BAL = 4, OP_GetGoodsList = 5, OP_GetRefundList = 6, OP_Refund = 7, OP_ATD = 10, OP_EditGoods = 11;
 
     public static final String SERVER_IP = "58.141.189.32";
     public static final int SERVER_PORT = 8321;
@@ -177,6 +177,15 @@ public class NetworkThread extends HandlerThread {
                                     res.what = 1;
                                     res.obj = result;
                                     MainActivity.mHandler.sendMessage(res);
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case OP_EditGoods:
+                                try {
+                                    dos.writeInt(OP_EditGoods);
+                                    dos.writeUTF((String) msg.obj);
 
                                 } catch (IOException e) {
                                     e.printStackTrace();

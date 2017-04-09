@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     public static String Phone_Num;
     public static String User;
     public static final int LOGIN_REQUEST = 100;
+    private BackPressCloseHandler backPressCloseHandler;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -109,6 +110,40 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final int goods_Num = Integer.parseInt(((ListViewItem)(adapter.getItem(i))).getItemCode());
+                final Dialog popup = new Dialog(MainActivity.this);
+                popup.setContentView(R.layout.activity_goodsadd);
+                popup.show();
+                final EditText goods = (EditText)popup.findViewById(R.id.tf_goods);
+                final EditText price = (EditText)popup.findViewById(R.id.tf_price);
+                goods.setText(((ListViewItem)(adapter.getItem(i))).getTitle());
+                price.setText(((ListViewItem)(adapter.getItem(i))).getDesc());
+                popup.findViewById(R.id.btn_add).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Message msg = new Message();
+                        msg.what = NetworkThread.OP_EditGoods;
+                        msg.obj = goods_Num + ":" + goods.getText().toString() + ":" + price.getText().toString();
+                        NetworkThread.instance.networkHandler.sendMessage(msg);
+                        Toast.makeText(MainActivity.this,"아이템 수정 완료", Toast.LENGTH_LONG);
+
+                        adapter.clear();
+                        Message msgg = new Message();
+                        msgg.what = NetworkThread.OP_GetGoodsList;
+                        NetworkThread.instance.networkHandler.sendMessage(msgg);
+                        popup.dismiss();
+                    }
+                });
+                return false;
+            }
+        });
+
+        backPressCloseHandler = new BackPressCloseHandler(this);//뒤로버튼으로 종료
+
         Message msg = new Message();
         msg.what = NetworkThread.OP_GetGoodsList;
         NetworkThread.instance.networkHandler.sendMessage(msg);
@@ -145,8 +180,6 @@ public class MainActivity extends AppCompatActivity {
 //
 //        Intent loginActivity = new Intent( this, LoginActivity.class);
 //        startActivityForResult(loginActivity, LOGIN_REQUEST);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
@@ -155,6 +188,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent("com.google.zxing.client.android.SCAN");
         intent.putExtra("SCAN_MODE", "ALL");
         startActivityForResult(intent, 0);
+    }
+
+    //뒤로버튼 눌렀을때
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        backPressCloseHandler.onBackPressed();
     }
 
     //ADD버튼 눌렀을때
