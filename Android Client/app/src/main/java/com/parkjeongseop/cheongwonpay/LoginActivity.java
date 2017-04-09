@@ -29,6 +29,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -39,11 +40,15 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,48 +57,26 @@ import static android.Manifest.permission.READ_CONTACTS;
 import java.io.*;
 import java.net.Socket;
 
-/**
- * A login screen that offers login via email/password.
- */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
+public class LoginActivity extends AppCompatActivity{
     public final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     public static final int LOGIN_OK = 1, LOGIN_FAIL = 2;
-    private String email, password;
+    private String id, password;
     private BackPressCloseHandler backPressCloseHandler;
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
     public static Handler mHandler;
-    // UI references.
+    // 사용자 인터페이스(UI) 정의(references).
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
+    private View mProgressView, mLoginFormView;
     private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login);// 사용자 인터페이스(UI) 연결.
 
-        backPressCloseHandler = new BackPressCloseHandler(this);
-        //TelephonyManager telephony = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        //MainActivity.Phone_Num = telephony.getLine1Number();
+        backPressCloseHandler = new BackPressCloseHandler(this);//뒤로버튼으로 종료
 
-        //핸들러
+        // LoginActivity의 Handler
         NetworkThread.prepare();
         mHandler = new Handler() {
             @Override
@@ -104,23 +87,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 final Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 
-                if (msg.what == LOGIN_OK) {
+                if (msg.what == LOGIN_OK) {// 로그인 성공일 때
                     extra.putString("LOGIN_RESULT", mEmailView.getText().toString());
                     intent.putExtras(extra);
                     setResult(RESULT_OK, intent);
+
+                    // 디바이스내에 ID와 암호화된 패스워드를 저장한다.
                     SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
                     SharedPreferences.Editor edit = pref.edit();
-                    edit.putString("ID1", email);
-                    edit.putString("PW1", password);
+                    edit.putString("ID", id);
+                    edit.putString("PW", encryptSHA512(password));
                     edit.commit();
-                    if (email.equals("관리자")) {
+                    if (id.equals("관리자")) {// 관리자계정일 때
+                        // 임시학생증 발급 Activity로 이동한다.
                         Intent intent1 = new Intent(getApplicationContext(), UserMatchingActivity.class);
                         startActivity(intent1);
                         finish();
-                    }else {
-                        if (password.equals("12345678")) {
+                    }else{
+                        if (password.equals("12345678")) {// 기본 설정된 패스워드(12345678)일 경우
                             AlertDialog.Builder alert = new AlertDialog.Builder(LoginActivity.this);
-
                             alert.setTitle("패스워드 변경");
                             alert.setMessage("기본패스워드입니다. 변경하실 패스워드를 입력해주세요. (패스워드 변경 후 부원과 공유) (5자 이상)");
 
@@ -130,18 +115,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     String InputPW = PW.getText().toString();
-                                    Message msg = new Message();
-                                    msg.what = NetworkThread.OP_EditPW;
-                                    msg.obj = InputPW;
-                                    NetworkThread.instance.networkHandler.sendMessage(msg);
+                                    if (!TextUtils.isEmpty(InputPW) && !isPasswordValid(InputPW)) {
+                                        Toast.makeText(LoginActivity.this, "5자이상으로 설정해주세요", Toast.LENGTH_LONG).show();
+                                    }else {
+                                        // NetworkThread에 Handler를 이용하여 변경할 패스워드와 함께 패스워드변경요청을 전달한다..
+                                        sendNetworkThread(NetworkThread.OP_EditPW, encryptSHA512(InputPW));
 
-                                    SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
-                                    SharedPreferences.Editor edit = pref.edit();
-                                    edit.putString("ID1", email);
-                                    edit.putString("PW1", InputPW);
-                                    edit.commit();
-                                    finish();
-                                    startActivity(intent);
+                                        // 디바이스내에 ID와 변경한 암호화된 패스워드를 각각 저장한다,
+                                        SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
+                                        SharedPreferences.Editor edit = pref.edit();
+                                        edit.putString("ID", id);
+                                        edit.putString("PW", encryptSHA512(InputPW));
+                                        edit.commit();
+                                        finish();
+                                        startActivity(intent);
+                                    }
                                 }
                             });
 
@@ -151,9 +139,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             startActivity(intent);
                         }
                     }
-
                 } else {
-
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();
                 }
@@ -216,32 +202,32 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     //뒤로버튼 눌렀을때
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
+        super.onBackPressed();
         backPressCloseHandler.onBackPressed();
     }
 
+    // 카메라 권한요청하기.
     private void cameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            AlertDialog alert = new AlertDialog.Builder(this)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {// 카메라권한이 없을 때
+            AlertDialog alert = new AlertDialog.Builder(this)// 안드로이드상에서 요청하기전 팝업으로 권한이 필요함을 안내한다.
                     .setIcon(R.mipmap.ic_launcher)
                     .setTitle("권한요청")
-                    .setMessage("앱을 정상적으로 이용하시려면 카메라권한이 필요합니다. 카메라 권한을 허용해주세요.")
+                    .setMessage("앱을 이용하시려면 카메라권한이 필요합니다. 카메라 권한을 허용해주세요.")
                     .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+                        public void onClick(DialogInterface dialog, int which) {// 확인을 눌렀을 때
+                            ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);// 안드로이드상에서 카메라권한을 요청한다.
                             dialog.dismiss();
                         }
                     })
                     .setNegativeButton("종료", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
+                        public void onClick(DialogInterface dialog, int which) {// 종료를 눌렀을 때
+                            finish();// 앱을 종료한다.
                         }
                     })
                     .show();
         }
-
     }
 
     @Override
@@ -257,90 +243,78 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-
-    //자동로그인
+    // 자동로그인
     public void autoLogin() {
-        // Store values at the time of the login attempt
         SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
-        email = pref.getString("ID1", "");
-        password = pref.getString("PW1", "");
-        Log.d("Test", "before");
-        if (email.length() == 0 || password.length() == 0) return;
-        Log.d("Test", "after");
-        boolean cancel = false;
+        id = pref.getString("ID", "");// 디바이스내에 저장된 ID값을 앱 내부의 변수"id"에 저장한다.
+        password = pref.getString("PW", "");// 디바이스내에 저장된 PW값을 앱 내부의 변수"password"에 저장한다.
+        if (id.length() == 0 || password.length() == 0) return;// id이나 password의 길이가 0이면 함수 반환한다.
 
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-//            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-//            showProgress(true);
-//            mAuthTask = new UserLoginTask(email, password);
-//            mAuthTask.execute((Void) null);
+        // NetworkThread에 Handler를 이용하여 ID,패스워드와 함께 로그인요청을 전달한다.
+        sendNetworkThread(NetworkThread.OP_LOGIN, id + ":" + password);
+    }
 
-            Message msg = new Message();
-            msg.what = NetworkThread.OP_LOGIN;
-            msg.obj = email + ":" + password;
-            NetworkThread.instance.networkHandler.sendMessage(msg);
+    // NetworkThread에 Handler를 이용하여 OP-Code와 데이터를 전달한다.
+    private void sendNetworkThread(int OP_Code, String Data){
+        Message msg = new Message();
+        msg.what = OP_Code;
+        msg.obj = Data;
+        NetworkThread.instance.networkHandler.sendMessage(msg);
+    }
+
+    // 패스워드를 SHA-512 알고리즘을 이용해 암호화한다.
+    public final static String encryptSHA512(String target) {
+        try {
+            MessageDigest sh = MessageDigest.getInstance("SHA-512");
+            sh.update(target.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (byte b : sh.digest()) sb.append(Integer.toHexString(0xff & b));
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 
-
-    //로그인 시도
+    // 로그인 시도
     private void attemptLogin() {
 
-        // Reset errors.
+        // 로그인field 오류 애니메이션을 null로 초기화한다.
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
-        // Store values at the time of the login attempt.
-        email = mEmailView.getText().toString();
+        // 로그인시도할 때의 정보들을 저장한다.
+        id = mEmailView.getText().toString();
         password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // 유효한 패스워드인지 확인
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {//password가 비어있거나
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
         // 유효한 ID인지 확인
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(id)) {// id이 비어있을 때
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
         }
 
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
+        if (cancel) {// 로그인 조건에 충족하지 않을 때
+            focusView.requestFocus();// 조건에 충족하지 않은 field를 표시한다.
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
+            showProgress(true);// 로딩화면을 표시한다.
 
-            //NetworkThread에 Handler를 이용하여 ID와 패스워드와함께 로그인요청전달
-            Message msg = new Message();
-            msg.what = NetworkThread.OP_LOGIN;
-            msg.obj = email + ":" + password;
-            NetworkThread.instance.networkHandler.sendMessage(msg);
+            // NetworkThread에 Handler를 이용하여 ID,암호화된 패스워드와 함께 로그인요청을 전달한다..
+            sendNetworkThread(NetworkThread.OP_LOGIN, id + ":" + encryptSHA512(password));
         }
     }
 
-    //유효한 패스워드인지 확인
+    // 유효한 패스워드인지 확인
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 
@@ -378,50 +352,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
-    }
-
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
     }
 
     @Override
@@ -463,20 +393,4 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
 }

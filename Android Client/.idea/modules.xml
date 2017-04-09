@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CheongwonPay-160922.iml" filepath="$PROJECT_DIR$/CheongwonPay-160922.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CheongwonPay.iml" filepath="$PROJECT_DIR$/CheongwonPay.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/core-3.2.1/core-3.2.1.iml" filepath="$PROJECT_DIR$/core-3.2.1/core-3.2.1.iml" />
     </modules>
