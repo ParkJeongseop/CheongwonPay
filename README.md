@@ -1,14 +1,14 @@
 # CheongwonPay
 For Cheongwon Festival, Payments and Attendance Platform System using Student ID Cards, and Analyzer.
 
-There are Android Client, Java Server, SQL Server and Java Analyzer. To see more,please look "ÃàÁ¦ ³» ÀüÀÚ½Ã½ºÅÛÈ­¿Í ºĞ¼®" in Korean.
+There are Android Client, Java Server, SQL Server and Java Analyzer. To see more,please look "ì¶•ì œ ë‚´ ì „ìì‹œìŠ¤í…œí™”ì™€ ë¶„ì„" in Korean.
 
 Prezi Presentation http://prezi.com/abeyq0abvuql/
 
 
-# ÀüÀÚÃ»¿ø
-Ã»¿ø°í,Ã»¿ø¿©°íÀÇ ÇĞ±³ÃàÁ¦ÀÎ Ã»¿ø¾î¿ï¸¶´çÀ» À§ÇÑ, ÇĞ»ıÁõÀ» ÀÌ¿ëÇÑ °áÁ¦ÁöºÒ°ú Ãâ°áÃ³¸® ÇÃ·§Æû ½Ã½ºÅÛ°ú ºĞ¼®±â.
+# ì „ìì²­ì›
+ì²­ì›ê³ ,ì²­ì›ì—¬ê³ ì˜ í•™êµì¶•ì œì¸ ì²­ì›ì–´ìš¸ë§ˆë‹¹ì„ ìœ„í•œ, í•™ìƒì¦ì„ ì´ìš©í•œ ê²°ì œì§€ë¶ˆê³¼ ì¶œê²°ì²˜ë¦¬ í”Œë«í¼ ì‹œìŠ¤í…œê³¼ ë¶„ì„ê¸°.
 
-¾Èµå·ÎÀÌµå Å¬¶óÀÌ¾ğÆ®¿Í ÀÚ¹Ù¼­¹ö, SQL¼­¹ö, ÀÚ¹Ù ºĞ¼®±â µîÀ¸·Î ÀÌ·ç¾îÁ®ÀÖ°í, ÀÚ¼¼ÇÑ ³»¿ëÀº "ÃàÁ¦ ³» ÀüÀÚ½Ã½ºÅÛÈ­¿Í ºĞ¼®"¹®¼­¸¦ È®ÀÎÇØ ÁÖ¼¼¿ä.
+ì•ˆë“œë¡œì´ë“œ í´ë¼ì´ì–¸íŠ¸ì™€ ìë°”ì„œë²„, SQLì„œë²„, ìë°” ë¶„ì„ê¸° ë“±ìœ¼ë¡œ ì´ë£¨ì–´ì ¸ìˆê³ , ìì„¸í•œ ë‚´ìš©ì€ "ì¶•ì œ ë‚´ ì „ìì‹œìŠ¤í…œí™”ì™€ ë¶„ì„"ë¬¸ì„œë¥¼ í™•ì¸í•´ ì£¼ì„¸ìš”.
 
-ÇÁ·¹Áö ¹ßÇ¥ÀÚ·á http://prezi.com/abeyq0abvuql/
+í”„ë ˆì§€ ë°œí‘œìë£Œ http://prezi.com/abeyq0abvuql/
