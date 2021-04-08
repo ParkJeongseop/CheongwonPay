@@ -18,32 +18,32 @@ For Cheongwon Festival, Payments and Attendance Application using Student ID Car
 ## 기능
 
 ### 로그인 화면
-<img src="docs/img/Screenshot_20161113-171743.png" width="180px" height="320px" title="로그인 화면" alt="로그인 화면"/>
+<img src="docs/img/Screenshot_20161113-171743.png" width="180px" height="320px" title="로그인 화면" alt="로그인 화면"></img>
 
 동아리이름과 패스워드를 통해 로그인. 최초 로그인시 패스워드 설정 후 진행
 
 ### 메인 기능
-<img src="docs/img/Screenshot_20161113-171527.png" width="180px" height="320px" title="메인 화면" alt="메인 화면"/>
-<img src="docs/img/Screenshot_20161113-171316.png" width="180px" height="320px" title="학생증 인식 화면" alt="학생증 인식 화면"/>
-<img src="docs/img/Screenshot_20161113-173700.png" width="180px" height="320px" title="출석체크 확인메시지" alt="출석체크 확인메시지"/>
+<img src="docs/img/Screenshot_20161113-171527.png" width="180px" height="320px" title="메인 화면" alt="메인 화면"></img>
+<img src="docs/img/Screenshot_20161113-171316.png" width="180px" height="320px" title="학생증 인식 화면" alt="학생증 인식 화면"></img>
+<img src="docs/img/Screenshot_20161113-173700.png" width="180px" height="320px" title="출석체크 확인메시지" alt="출석체크 확인메시지"></img>
 
 바코드인식 > 리스트에서 상품 선택하여 결제
 
 ### 상품 서비스 등록
-<img src="docs/img/Screenshot_20161113-171540.png" width="180px" height="320px" title="상품 서비스 추가 화면" alt="상품 서비스 추가 화면"/>
-<img src="docs/img/KakaoTalk_20161123_012805347.png" width="180px" height="320px" title="수정" alt="수정"/>
+<img src="docs/img/Screenshot_20161113-171540.png" width="180px" height="320px" title="상품 서비스 추가 화면" alt="상품 서비스 추가 화면"></img>
+<img src="docs/img/KakaoTalk_20161123_012805347.png" width="180px" height="320px" title="수정" alt="수정"></img>
 
 - 축제 전 부스에서 제공하는 상품/활동 정보를 미리 등록
 - 우측 상단 "추가"버튼을 눌러 팝업창에서 상품명과 가격을 등록(무료인 경우 0원으로 설정)
 - 목록에서 길게눌러서 수정/삭제
 
 ### 부스운영 부원 출석체크 등록
-<img src="docs/img/Screenshot_20161113-173653.png" width="180px" height="320px" title="부스운영 부원 출석체크 등록" alt="부스운영 부원 출석체크 등록"/>
+<img src="docs/img/Screenshot_20161113-173653.png" width="180px" height="320px" title="부스운영 부원 출석체크 등록" alt="부스운영 부원 출석체크 등록"></img>
 
 - 학교에서 축제 부스를 운영하는 학생은 출석조건에서 제외되는 정책이 있어 바코드 인식 후 "부원등록"하여 출석처리
 
 ### 임시학생증 등록(학생회)
-<img src="docs/img/Screenshot_20161113-174700.png" width="180px" height="320px" title="임시학생증 등록" alt="임시학생증 등록"/>
+<img src="docs/img/Screenshot_20161113-174700.png" width="180px" height="320px" title="임시학생증 등록" alt="임시학생증 등록"></img>
 
 ![임시학생증](docs/img/팔찌타입.png)
 
